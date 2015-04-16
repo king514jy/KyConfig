@@ -5,12 +5,10 @@ package kyc
 	import flash.net.URLLoader;
 	import flash.net.URLRequest;
 	
-	import ky.utils.Base64;
-	import ky.utils.PassHandler;
-	
 	import kyc.data.NodeValueData;
 	import kyc.events.AnalyzeEvent;
-	
+	import kyc.utils.Base64;
+
 	/** 配置文件解析完成后发出 **/
 	[Event(name="analyze_complete", type="kyc.events.AnalyzeEvent")]
 	/**
@@ -30,7 +28,6 @@ function onComplete(e:AnalyzeEvent):void
 		private var _nodeList:Vector.<NodeValueData> = new Vector.<NodeValueData>();
 		public function KYConfig()
 		{
-			
 		}
 		/**
 		 * 数据节点列表
@@ -52,7 +49,7 @@ function onComplete(e:AnalyzeEvent):void
 		private function onComplete(e:Event):void
 		{
 			var urlLoader:URLLoader = e.target as URLLoader;
-			var xml:XML = XML(Base64.decode(PassHandler.decryption(urlLoader.data)));
+			var xml:XML = XML(Base64.decode(decryption(urlLoader.data)));
 			//var xml:XML = XML(urlLoader.data);
 			_nodeList.length = 0;
 			var le:uint = xml.node.length();
@@ -159,6 +156,22 @@ function onComplete(e:AnalyzeEvent):void
 					return obj;
 			}
 			return null;
+		}
+		private static function decryption(str:String):String
+		{
+			var vc:Array = new Array(4,1,2,0,3);
+			var newStr:String;
+			var s0:String = str.slice(0,10);
+			var s1:String = str.substr(17,5);
+			var s2:String = str.slice(22); 
+			var s3:String="";
+			for(var qin:int;qin<5;qin++)
+			{
+				var ss:String = s1.charAt(vc[qin]);
+				s3=s3+ss;
+			}
+			newStr = s0+s3+s2;
+			return newStr;
 		}
 	}
 }
